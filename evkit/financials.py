@@ -20,9 +20,20 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
 
+"""
+Algorithm
+1/ extract web data, clean, write actual financials to object attributes
+2/ get ST growth rate, effective tax rate
+3/ get revenue ratios for CF elements
+->4/ forecast CF: revenue, EBIT, debt from constant D/E
+5/ get NWC projections
+6/ get terminal value
+7/ DCF-WACC
+"""
+
 import numpy as np
 
-from evkit import urldata
+from evkit import utils
 
 
 class IncomeStatement:
@@ -30,8 +41,6 @@ class IncomeStatement:
     fin_statement_url_id = '/financials?p='  # Income statement
     # positional index of values in html
     revenue_id = 6
-    cogs_id = 11
-    opex_id = 42
     ebit_id = 47
     interest_id = 63
     tax_id = 73
@@ -40,12 +49,9 @@ class IncomeStatement:
         self.ticker = ticker
         self.html = None
         self.revenue = []
-        self.cogs = []
-        self.opex = []
         self.ebit = []
         self.interest = []
         self.tax = []
-        self.tax_rate = None
 
     @staticmethod
     def write_to_list(html, element_list, element_id):
@@ -54,16 +60,16 @@ class IncomeStatement:
         :param html:
         :param element_list:
         :param element_id:
-        :return:
+        :return:implied_rate
         """
         offset = 4
         for i_ in range(element_id, element_id + offset):
-            value = urldata.get_value(html, i_)
+            value = utils.get_value(html, i_)
             element_list.append(value)
         element_list.reverse()
 
     @staticmethod
-    def st_growth(element_list):
+    def get_st_growth(element_list):
         """
         Calculate short-term growth rate
         :param element_list:
@@ -71,18 +77,41 @@ class IncomeStatement:
         """
         n = len(element_list) - 1
         change_list = [element_list[i + 1] / element_list[i] - 1 for i in range(n)]
-        rate = sum(change_list) / n
-        return rate
+        st_growth = sum(change_list) / n
+        return st_growth
 
     def get_html_data(self):
-        self.html = urldata.get_html(ticker=self.ticker,
-                                     url_symbol=self.fin_statement_url_id,
-                                     YahooFinance=True,
-                                     verbose=False
-                                     )
+        self.html = utils.get_html(ticker=self.ticker,
+                                   url_symbol=self.fin_statement_url_id,
+                                   YahooFinance=True,
+                                   verbose=False
+                                   )
 
-    def revenue_ratio(self):
-        pass
+    def get_tax_rate(self):
+        t_rates = np.array(self.tax[:4]) / np.array(self.ebit[:4])
+        tax_rate = np.mean(t_rates)
+        return tax_rate
+
+    def get_revenue_ratio(self, elements_list):
+        # element/revenue from actual results
+        ratio_list = np.array(elements_list[:4]) / np.array(self.revenue[:4])
+        ratio = np.mean(ratio_list)
+        return ratio
+
+    def get_projections(self, elements_list, periods, growth_rate=None, ratio=True):
+        if ratio:
+            # get projections for IS elements
+            for revenue_t in self.revenue[4:]:
+                ratio = self.get_revenue_ratio(elements_list)
+                element_t = revenue_t * ratio
+                elements_list.append(element_t)
+        else:
+            # get projections for revenue, BS, CFS elements
+            for t in range(periods):
+                last_element = elements_list[-1]
+                element_t = last_element * (1 + growth_rate)
+                elements_list.append(element_t)
+        return elements_list
 
     def actual_statement(self):
         """
@@ -93,16 +122,6 @@ class IncomeStatement:
         self.write_to_list(self.html,
                            self.revenue,
                            self.revenue_id
-                           )
-        # cogs
-        self.write_to_list(self.html,
-                           self.cogs,
-                           self.cogs_id
-                           )
-        # opex
-        self.write_to_list(self.html,
-                           self.opex,
-                           self.opex_id
                            )
         # EBIT
         self.write_to_list(self.html,
@@ -121,17 +140,18 @@ class IncomeStatement:
                            self.tax_id
                            )
 
-    def get_tax_rate(self):
-        t_rates = np.array(self.tax) / np.array(self.ebit)
-        self.tax_rate = np.mean(t_rates)
-        return self.tax_rate
-
-    def forecast_statement(self):
-        revenue_growth = self.st_growth(self.revenue)
-        t = 3
-        for i in range(t):
-            revenue_t = self.revenue[-1] * (1 + revenue_growth)
-            self.revenue.append(revenue_t)
+    def forecast_statement(self, st_growth, periods=3):
+        # forecast elements
+        # revenue
+        self.get_projections(elements_list=self.revenue,
+                             periods=periods,
+                             growth_rate=st_growth,
+                             ratio=False
+                             )
+        # ebit
+        self.get_projections(elements_list=self.ebit,
+                             periods=periods,
+                             )
 
 
 class BalanceSheet(IncomeStatement):
@@ -153,6 +173,7 @@ class BalanceSheet(IncomeStatement):
         self.current_liabilities = []
         self.lt_debt = []
         self.equity = []
+        self.nwc = []
 
     def actual_statement(self):
         """
@@ -190,6 +211,27 @@ class BalanceSheet(IncomeStatement):
                            self.equity_id
                            )
 
+    def get_nwc(self):
+        # net working capital
+        wc = np.array(self.current_assets) - np.array(self.current_liabilities)
+        records = len(wc)
+        self.nwc = [0] + [wc[i + 1] - wc[i] for i in range(records - 1)]
+        return self.nwc
+
+    def forecast_statement(self, st_growth, periods=3):
+        # forecast elements
+        self.get_projections(elements_list=self.current_assets,
+                             periods=periods,
+                             growth_rate=st_growth,
+                             ratio=False
+                             )
+        self.get_projections(elements_list=self.current_liabilities,
+                             periods=periods,
+                             growth_rate=st_growth,
+                             ratio=False
+                             )
+        self.get_nwc()
+
 
 class CashFlowStatement(IncomeStatement):
     # unique ID of YahooFinance url
@@ -220,40 +262,39 @@ class CashFlowStatement(IncomeStatement):
                            self.capex_id
                            )
 
+    def forecast_statement(self, st_growth, periods=3):
+        # forecast elements
+        dna_growth = self.get_st_growth(self.depreciation)
+        self.get_projections(elements_list=self.depreciation,
+                             periods=periods,
+                             growth_rate=dna_growth,
+                             ratio=False
+                             )
+        capex_growth = self.get_st_growth(self.capex)
+        self.get_projections(elements_list=self.capex,
+                             periods=periods,
+                             growth_rate=capex_growth,
+                             ratio=False
+                             )
+
+
+def dcf(ebit, dna, nwc, capex, tax_rate, lt_growth, wacc, dt):
+    # FCF = EBIT(1 - tax) + DnA - NWC - CAPEX
+    ebit = np.array(ebit)
+    dna = np.array(dna)
+    nwc = np.array(nwc)
+    capex = -np.array(capex)  # adjust negative value
+    fcf = ebit * (1 - tax_rate) + dna - nwc - capex
+    # terminal value
+    tv = fcf[-1] * (1 + lt_growth) / (wacc - lt_growth)
+    fcf_tv = np.append(fcf, tv)[4:]
+    # discount forecasted fcf
+    ev = np.dot(fcf_tv, dt)
+    return fcf_tv, ev
+
 
 def main():
-    stock = 'GOOG'
-
-    # test instances
-    print('\n==IS test==')
-    is_test = IncomeStatement(stock)
-    is_test.get_html_data()
-    is_test.actual_statement()
-    is_test.forecast_statement()
-    print('Revenue', is_test.revenue)
-    print('COGS', is_test.cogs)
-    print('OPEX', is_test.opex)
-    print('EBIT', is_test.ebit)
-    print('Interest', is_test.interest)
-    print('Tax', is_test.tax)
-
-    print('\n==BS test==')
-    bs_test = BalanceSheet(stock)
-    bs_test.get_html_data()
-    bs_test.actual_statement()
-    print('Cash', bs_test.cash)
-    print('Current assets', bs_test.current_assets)
-    print('Total Assets', bs_test.total_assets)
-    print('Current liabilities', bs_test.current_liabilities)
-    print('LT debt', bs_test.lt_debt)
-    print('Equity', bs_test.equity)
-
-    print('\n==CFS test==')
-    cfs_test = CashFlowStatement(stock)
-    cfs_test.get_html_data()
-    cfs_test.actual_statement()
-    print('Depreciation', cfs_test.depreciation)
-    print('CAPEX', cfs_test.capex)
+    pass
 
 
 if __name__ == '__main__':

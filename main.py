@@ -24,7 +24,9 @@ from evkit import capital
 from evkit import financials
 
 # Assumptions
-ticker = 'AMZN'
+ticker = input('Enter ticker (e.g. "AMZN"): ')
+lt_growth = 0.045
+forecast_horizon = 3
 
 
 def main():
@@ -34,14 +36,16 @@ def main():
     fin_cf = financials.CashFlowStatement(ticker)
     cap = capital.CostOfCapital(ticker)
 
-    # extract data from html
+    # extract risk-free rate, market return, market risk premium
+    cap.get_rf_mrp()
+    # extract financial reports
     fin_is.get_html_data()
     fin_bs.get_html_data()
     fin_cf.get_html_data()
-    # extract risk-free rate, market return, market risk premium
-    cap.get_rf_mrp()
     # extract beta of equity (levered beta)
-    cap.get_equity_beta()
+    beta_eq = cap.get_equity_beta()
+    # extract shares outstanding
+    num_shares = cap.get_shares_outstanding()
 
     # populate fin statements with actual data
     fin_is.actual_statement()
@@ -49,20 +53,69 @@ def main():
     fin_cf.actual_statement()
     # get effective tax rate
     tax_rate = fin_is.get_tax_rate()
+    # get ST growth rate from revenue
+    st_growth = fin_is.get_st_growth(fin_is.revenue)
+    # make financial projections
+    fin_is.forecast_statement(st_growth=st_growth, periods=forecast_horizon)
+    fin_bs.forecast_statement(st_growth=st_growth, periods=forecast_horizon)
+    fin_cf.forecast_statement(st_growth=st_growth, periods=forecast_horizon)
+    # get net working capital
+    fin_bs.get_nwc()
 
     # get cost of debt
-    cap.get_cost_of_debt(fin_bs.lt_debt, fin_is.interest)
+    rd = cap.get_cost_of_debt(fin_bs.lt_debt, fin_is.interest)
     # get debt beta
-    cap.get_debt_beta()
+    beta_debt = cap.get_debt_beta()
     # get asset beta
-    cap.get_asset_beta(debt=fin_bs.lt_debt,
-                       equity=fin_bs.equity,
-                       tax_rate=tax_rate
-                       )
+    beta_asset = cap.get_asset_beta(debt=fin_bs.lt_debt,
+                                    equity=fin_bs.equity,
+                                    tax_rate=tax_rate
+                                    )
     # get cost of equity
-    cap.get_cost_of_equity()
+    re = cap.get_cost_of_equity()
     # get WACC
-    cap.get_wacc(debt=fin_bs.lt_debt, assets=fin_bs.total_assets, tax_rate=tax_rate)
+    wacc = cap.get_wacc(debt=fin_bs.lt_debt,
+                        assets=fin_bs.total_assets,
+                        tax_rate=tax_rate
+                        )
+    # get discount factors
+    dt = capital.discount_factors(wacc, periods=forecast_horizon)
+
+    # DCF
+    # Enterprise value
+    fcf, ev = financials.dcf(ebit=fin_is.ebit,
+                             dna=fin_cf.depreciation,
+                             nwc=fin_bs.nwc,
+                             capex=fin_cf.capex,
+                             tax_rate=tax_rate,
+                             lt_growth=lt_growth,
+                             wacc=wacc,
+                             dt=dt
+                             )
+    # Equity value
+    eq = ev - fin_bs.lt_debt[3] + fin_bs.cash[3]
+    # Share price
+    stock_price = eq / num_shares
+
+    # Display results
+    print(f'==Cost of capital report==\n'
+          f'debt beta = {beta_debt:.2f}\n'
+          f'equity beta = {beta_eq:.2f}\n'
+          f'asset beta = {beta_asset:.2f}\n'
+          f'rd = {rd * 100:.2f}%\n'
+          f're = {re * 100:.2f}%\n'
+          f'WACC = {wacc * 100:4.2f}%\n')
+    print(f'==Financial projections==\n'
+          f'Revenue {fin_is.revenue}\n'
+          f'EBIT {fin_is.ebit}\n'
+          f'NWC {fin_bs.nwc}\n'
+          f'DnA {fin_cf.depreciation}\n'
+          f'CAPEX {fin_cf.capex}\n'
+          f'FCF {fcf}\n')
+    print(f'==DCF-WACC results==\n'
+          f'Enterprise value = {ev / 1_000_000:.2f}B\n'
+          f'Equity value = {eq / 1_000_000:.2f}B\n'
+          f'Stock price = {stock_price:.2f}')
 
 
 if __name__ == '__main__':

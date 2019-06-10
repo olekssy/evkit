@@ -41,11 +41,21 @@ def get_html(ticker, url_symbol, YahooFinance=True, verbose=False):
     return data
 
 
-def get_value(data, value_index, verbose=False):
-    value_text = data[value_index].text
+def get_value(html_page, value_index, shares=False, verbose=False):
+    value_text = html_page[value_index].text
     value_str = value_text.replace(',', '')
-    value_float = float(value_str)
-
+    if shares:
+        if value_str[-1] == 'M':
+            value_float = float(value_str[:-1]) * 1_000
+        elif value_str[-1] == 'B':
+            value_float = float(value_str[:-1]) * 1_000_000
+        else:
+            raise Exception('Unknown scale of shares outstanding')
+    else:
+        try:
+            value_float = float(value_str)
+        except ValueError:
+            value_float = 0
     if verbose:
         print('\n==Verbose mode of data.get_value==')
         print(f'value_text = {value_text} {type(value_text)}\n'
@@ -55,14 +65,15 @@ def get_value(data, value_index, verbose=False):
 
 
 def main():
-    stock = 'GOOG'
-    verbose = True
+    stock = 'AMZN'
+    verbose = False
 
     # unique ID of YahooFinance urlcurrent_assets_id
     summary_url_id = '?p='
     income_statement_url_id = '/financials?p='
     balance_sheet_url_id = '/balance-sheet?p='
     cf_statement_url_id = '/cash-flow?p='
+    statistics_url_id = '/key-statistics?p='
 
     # other sources
     index_return_url = 'http://news.morningstar.com/index/indexReturn.html'
@@ -72,8 +83,7 @@ def main():
     income_statement_html = get_html(stock, income_statement_url_id, verbose=verbose)
     balance_sheet_html = get_html(stock, balance_sheet_url_id, verbose=verbose)
     cf_statement_html = get_html(stock, cf_statement_url_id, verbose=verbose)
-
-    # test value getter
+    statistics_html = get_html(stock, statistics_url_id, verbose=verbose)
 
 
 if __name__ == '__main__':

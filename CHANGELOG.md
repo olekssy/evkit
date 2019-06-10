@@ -8,9 +8,8 @@ All notable changes to this project will be documented in this file.
 - Web data extraction: financial statements, rf, market return, stock stats and summary
 - Financials: pro-forma Income statement, Balance Sheet, CF Statement
 - Cost of Capital: re, rd, betas, wacc
-- MIT license to modules
 - appropriate CHANGELOG.md
-- develop branch
+- MIT license to modules
 
 ### Changed
 - name of the project to Equity valuation kit
