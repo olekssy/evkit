@@ -38,7 +38,7 @@ Unsupervised execution of the valuation algorithm is primary objective of the pr
 
 
 ## Clone, Compile, Run
-The program is written in Python and is self-contained, thus does not require compiling. However, if you wish to tinker with data standalone components, you can install it as a module to your Python environment as PyPi package.
+The program is written in Python and is self-contained, thus does not require compiling. However, if you wish to tinker with standalone components, you can install it as a module to your Python environment as PyPi package.
 
 ### Install
 Clone repository, navigate to the folder in Terminal. To get the most up-to-date version, clone master branch. Stable versions are labeled with tags.
@@ -99,7 +99,7 @@ Note, no data is lost due to premature termination of the process, ~~unless unkn
 
 Here is how the result looks in Tables.
 
-![Sample csv table](utils/Table_1a.png)
+![Sample csv table](utils/Table_1.png)
 
 ## License and Copyright
 Copyright (c) 2019 Oleksii Lialka

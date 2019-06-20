@@ -53,7 +53,7 @@ def get_value(html_page, value_index):
             value_float = None
         elif value_str == '-':
             value_float = 0
-        elif not value_str.replace('.', '').isdigit():
+        elif not value_str.replace('.', '').replace('-', '').isdigit():
             # some tickers have broken index,
             # long text value passes all checks and blows the float value up
             value_float = None

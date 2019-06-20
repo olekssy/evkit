@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ## [Unreleased]
+## [0.8.1] - 2019-06-19
+### Changed
+- typos in README
+- result table screenshot
+
+### Fixed
+- get_value validity condition prevented extracting interest for IS
+
+
 ## [0.8.0] - 2019-06-19
 ### Added
 - version tags
@@ -59,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - irrelevant utils
 - all functionality, except bare minimum for DCF-WACC valuation
 
+
 ## [0.5.0] - 2018-11-19
 ### Added
 - modular design of the program
@@ -70,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - reduced number of user assumptions to ticker
 - optimization tweaks
 
+
 ## [0.4.0] - 2018-09-24
 ### Added
 - Multiples module
@@ -79,6 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - optimized accuracy and precision of capital structure sensitivity analysis report
 - deploying reports into "reports" directory with a company name
 - compressed unnecessary functions into nested functions
+
 
 ## [0.3.0] - 2018-09-23
 ### Added
@@ -91,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - reduced number of key assumptions
 - optimized betas' unlevering/relevering algorithm
+
 
 ## [0.2.0] - 2018-09-21
 ### Added
@@ -105,6 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - improved delevering/relevering betas
+
 
 ## [0.1.0] - 2018-09-19
 ### Added
