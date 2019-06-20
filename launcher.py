@@ -25,16 +25,16 @@ from datetime import datetime
 
 import pandas as pd
 
-from modules import capital
-from modules import financials
-from modules import utils
+from evkit import capital
+from evkit import financials
+from evkit import utils
 
 warnings.filterwarnings('ignore')
 
 # Assumptions
 forecast_horizon = 5
 
-    # get tickers pool url
+# get tickers pool url
 tickers_key, tickers_urls = utils.get_tickers_url()
 # extract list of stocks, write to file
 tickers_df = utils.get_tickers(tickers_urls)
@@ -185,4 +185,17 @@ finally:
     utils.results_to_csv(
         data_df=report_df,
         report_id=report_id
+    )
+    # plot results
+    beta_asset = report_df.beta_asset
+    wacc = report_df.wacc
+    dcf = report_df.stock_price
+    mkt_quote = report_df.mkt_stock_price
+    utils.plot_beta_wacc(
+        beta=beta_asset,
+        wacc=wacc
+    )
+    utils.plot_dcf_mkt_price(
+        dcf_price=dcf,
+        mkt_price=mkt_quote
     )

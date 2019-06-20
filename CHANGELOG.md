@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.8.0] - 2019-06-19
+### Added
+- version tags
+- installation and users guide to README
+- plots for beta-wacc and dcf-mkt quote
+
+### Changed
+- license, social and build badges in README.md
+- renamed modules/ dir into evkit/
+- renamed main file into launcher.py
+- prettify README
+
+
 ## [0.7.0] - 2019-06-16
 ### Added
 - automated ticker list extraction with html page offset
@@ -18,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Semantic Versioning structure to CHANGELOG.md
 - license and build badges to README.md
 - sample reports from test-runs
-- added version tags
 
 ### Changed
 - LT growth rate estimate as fraction of WACC

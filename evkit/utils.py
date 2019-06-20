@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+import matplotlib.pyplot as plt
 
 
 def get_html(ticker, url_id, YahooFinance=True, show_page=False):
@@ -162,6 +163,51 @@ def get_tickers(url_list):
     # render dictionary into DataFrame
     stocks_df = pd.DataFrame(collection)
     return stocks_df
+
+
+def plot_beta_wacc(beta, wacc):
+    plt.style.use('ggplot')
+    plt.figure(figsize=(10, 5))
+    n = len(wacc)
+    plt.scatter(x=beta,
+                y=wacc,
+                edgecolor='black',
+                linewidth=1,
+                alpha=0.75
+                )
+    plt.title('Asset beta - WACC \nN = ' + str(n))
+    plt.xlabel('Asset beta')
+    plt.ylabel('WACC')
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_dcf_mkt_price(dcf_price, mkt_price):
+    plt.style.use('seaborn')
+    plt.figure(figsize=(10, 5))
+    n = len(dcf_price)
+    # plt.plot(
+    #     dcf_price,
+    #     linewidth=1,
+    # )
+    # plt.plot(
+    #     mkt_price,
+    #     linewidth=1,
+    #     alpha=0.75
+    # )
+    plt.scatter(
+        x=mkt_price,
+        y=dcf_price / mkt_price,
+        linewidth=1,
+        alpha=0.75
+    )
+    plt.xscale('log')
+    # plt.yscale('log')
+    plt.title('DCF-WACC stock price to market quote \nN = ' + str(n))
+    plt.xlabel('DCF-WACC / Market quote')
+    plt.ylabel('Market quote')
+    plt.tight_layout()
+    plt.show()
 
 
 def get_shares_num(html_page, value_index):
