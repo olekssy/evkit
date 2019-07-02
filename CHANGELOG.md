@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+## [0.8.2] - 2019-07-02
+### Fixed
+- YahooFinance tokens for ticker pools
+- shares outstanding value id
+
+
 ## [0.8.1] - 2019-06-19
 ### Changed
 - typos in README

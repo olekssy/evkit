@@ -1,4 +1,4 @@
-name: Evkit-env
+name: evkit
 channels:
   - defaults
 dependencies:
@@ -89,4 +89,3 @@ dependencies:
     - wcwidth==0.1.7
     - webencodings==0.5.1
 prefix: /home/oleksii/.conda/envs/Evkit-env
-

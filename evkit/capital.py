@@ -42,7 +42,7 @@ class CostOfCapital:
     # positional index of values in html
     mkt_price_id = 1
     beta_id = 19
-    shares_outstanding_id = 81
+    shares_outstanding_id = 37
 
     def __init__(self, ticker, rf, mrp):
         self.ticker = ticker

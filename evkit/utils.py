@@ -66,19 +66,19 @@ def get_value(html_page, value_index):
 
 def get_tickers_url():
     tickers_dict = {
-        'mega_cap': '6c955f6b-c078-47c1-a9eb-d93607ceb673',
-        'large_cap': '25ed2f63-3814-464e-97f3-eeb10fe94770',
-        'basic_materials': '8f276e04-7082-47b0-896f-4b7c58e39b27',
-        'healthcare': '19195aee-15dc-48f7-83df-6708e967104f',
-        'utilities': '0404dc95-4b06-480e-8a8f-d12942742ef6',
-        'financial_services': '118edd64-ce41-4a0a-8333-a10467ff07db',
-        'consumer_defensive': '1f60e78d-525e-4465-904c-ff8ae1b5417b',
-        'consumer_cyclical': '9dd8e049-6661-4568-9860-7fdfd6ff98cb',
-        'technology': '13fc81da-04e8-47c1-b6e1-9cf4de14d475',
-        'energy': 'e9256712-2367-4f3a-b5d7-59868089b96c',
-        'real_estate': '8b29c68d-98a7-4c02-81bd-9b4788bec141',
-        'communication_services': '6dd7db5e-847c-45ab-a7b2-d962d3283ff6',
-        'industrials': '77ed0107-c1de-47af-be30-3cd5491bf886'
+        'mega_cap': 'fa45388d-9752-4201-974f-93c0fffdaf2e',
+        'large_cap': 'fd702086-e634-4b39-81e8-3326f43373f6',
+        'basic_materials': 'b7a89332-49c1-4c36-aa21-0e5dea8c0a4e',
+        'healthcare': 'b5bd835a-1f78-4dd3-a22d-14a97f62e2c4',
+        'utilities': 'cea6e52c-0be5-4600-a302-c737e9b7f274',
+        'financial_services': 'f48ad0e4-430a-41b5-b42d-9b84ded67143',
+        'consumer_defensive': '27c9d45d-6ae9-4404-9c29-977dc249b8fe',
+        'consumer_cyclical': '2e4f67d2-c4f2-4e6e-9a88-99084a489809h',
+        'technology': '8f642d7d-11b7-435a-aa30-b1570a7d9d26',
+        'energy': '238a84a7-d96d-4b87-a1b9-090191c412e3',
+        'real_estate': '33d68532-22eb-4ca5-aaab-a2c4e45e6337',
+        'communication_services': '17bcd658-1187-431d-8dbb-38d4967e1981',
+        'industrials': '64550c05-f55d-4620-9f5d-95143b31e9ed'
     }
     # display available stock pools
     print(f'ID | Industry')
@@ -243,8 +243,8 @@ def results_to_csv(data_df, report_id):
 
 
 def main():
-    ticker = 'RTPPF'
-    display_results = False
+    ticker = 'AMZN'
+    display_results = True
 
     # unique ID of YahooFinance urlcurrent_assets_id
     summary_url_id = '?p='
@@ -279,6 +279,7 @@ def main():
         url_id=statistics_url_id,
         show_page=display_results
     )
+    # get_tickers_url()
 
 
 if __name__ == '__main__':
