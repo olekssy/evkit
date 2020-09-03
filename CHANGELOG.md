@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+## [0.10.0] - 2020-MM-DD
+### Added
+- New structure of the project
+- downloader and parser of financial statements from SEC EDGAR database
+
+### Removed
+- DCF-WACC functionality
+- Cost of capital functionality
+- financial statement analysis functionality
+
+
 ## [0.8.2] - 2019-07-02
 ### Fixed
 - YahooFinance tokens for ticker pools

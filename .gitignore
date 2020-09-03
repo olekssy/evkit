@@ -1,6 +1,7 @@
-# Sys artifacts
+# System artifacts
 .DS_Store
 .vscode
+__pycache__
 
 *.bin
 *.csv

@@ -1,17 +1,16 @@
 """ Script for downloading company filings from the SEC EDGAR database. """
 
-import json
 import pandas as pd
+import utils
 
 
 # Load configs
-with open("evkit/settings.json", "r") as configFile:
-    config = json.load(configFile)
+configs = utils.load_configs()
 
 
 # -------------------- Assumptions --------------------
 ticker = "AAPL"
-verbose = config["general"]["verbose"]
+verbose = configs["general"]["verbose"]
 separator = "	"
 
 
@@ -21,9 +20,9 @@ separator = "	"
 
 def main():
     # scrap_sec_fillings(ticker)
-    pathData = config["path"]["data"] + "2020q2/num.txt"
-    df = pd.read_csv(pathData, sep=separator)
-    print(df.head())
+    pathData = configs["pathInternal"]["data"] + "2020q2/num.txt"
+    df = pd.read_csv(pathData, sep=separator, low_memory=False)
+    print(df)
 
 
 if __name__ == "__main__":

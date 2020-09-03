@@ -2,12 +2,27 @@
     "general": {
         "verbose": true
     },
-    "path": {
+    "pathInternal": {
         "data": "data/",
         "docs": "docs/",
         "media": "media/",
         "models": "models/",
         "notebooks": "notebooks/",
-        "reports": "reports/"
+        "reports": "reports/",
+        "tests": "tests/"
+    },
+    "pathExternal": {
+        "SEC": {
+            "FY2020": {
+                "Q2": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2020q2.zip",
+                "Q1": "https://www.sec.gov/files/node/add/data_distribution/2020q1.zip"
+            },
+            "FY2019": {
+                "Q4": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2019q4.zip",
+                "Q3": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2019q3.zip",
+                "Q2": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2019q2.zip",
+                "Q1": "https://www.sec.gov/files/dera/data/financial-statement-data-sets/2019q1.zip"
+            }
+        }
     }
 }
