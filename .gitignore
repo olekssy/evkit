@@ -1,4 +1,9 @@
-.idea
-.ipynb_checkpoints
-.csv
-__pycache__
+.DS_Store
+*.bin
+*.txt
+*.csv
+*.txt
+*.htm
+
+# VScode artifacts
+settings.json
