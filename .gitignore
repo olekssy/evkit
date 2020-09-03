@@ -1,9 +1,9 @@
+# Sys artifacts
 .DS_Store
-*.bin
-*.txt
-*.csv
-*.txt
-*.htm
+.vscode
 
-# VScode artifacts
-settings.json
+*.bin
+*.csv
+*.png
+*.htm
+*.txt

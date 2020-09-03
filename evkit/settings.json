@@ -1,0 +1,13 @@
+{
+    "general": {
+        "verbose": true
+    },
+    "path": {
+        "data": "data/",
+        "docs": "docs/",
+        "media": "media/",
+        "models": "models/",
+        "notebooks": "notebooks/",
+        "reports": "reports/"
+    }
+}
