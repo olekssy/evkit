@@ -1,112 +1,191 @@
 """ Script for downloading company filings from the SEC database. """
 
 
+import os
+import zipfile
+# import numpy as np
 import pandas as pd
 import requests
-import utils
-from tqdm import tqdm
-import zipfile
-import os
 
+import utils
 
 # -------------------- Global Variables --------------------
 config = utils.load_config()
-verbose = config["general"]["verbose"]
 
 
-# -------------------- Downloader Settings --------------------
-class Data:
+class FinancialDataSEC:
     """
     Class for collecting Financial Statement Data Sets from SEC.
     """
     def __init__(self):
-        self.SEC = config["dataSource"]["SEC"]
+        self.verbose = config["general"]["verbose"]
+        self.url = config["dataSource"]["SEC"]
         self.pathData = config["localPath"]["data"]
-        self.pathArchives = {}
-    
-    def download(self, verbose=False):
+        self.pathArchives = config["localPath"]["archives"]
+        self.pathTemp = config["localPath"]["temp"]
+
+        self.pathIndexSEC = config["localPath"]["SECindex"]
+        self.pathFinDataSEC = config["localPath"]["SECdata"]
+
+        self.indexSEC = None
+        self.finDataSEC = None
+
+    def download(self):
         """
         Download FSD archives from SEC.
         """
-        if verbose:
+        if self.verbose:
             print("Start downloading FSD archives.")
 
-        for year in self.SEC.keys():
+        for year in self.url.keys():
             # create dir for archives
-            dirPath = config["localPath"]["archives"]
-            if not os.path.exists(dirPath):
-                os.mkdir(dirPath)
-            for quarter in self.SEC[year].keys():
-                fileName = "".join([year, quarter])
-                filePath = "".join([dirPath, fileName, ".zip"])
+            if not os.path.exists(self.pathArchives):
+                os.mkdir(self.pathArchives)
+
+            for quarter in self.url[year].keys():
+                fileName = self.url[year][quarter].split("/")[-1]
+                filePath = "".join([self.pathArchives, fileName])
                 # download file from SEC database
-                archive = requests.get(self.SEC[year][quarter])
+                archive = requests.get(self.url[year][quarter])
                 # save file
                 open(filePath, 'wb').write(archive.content)
-                # write path to file
-                self.pathArchives[fileName] = filePath
 
-                if verbose:
+                if self.verbose:
                     print(f"Downloaded {filePath}")
-        
-        if verbose:
+
+        if self.verbose:
             print("Complete all downloads.\n")
-    
-    def extract(self, verbose=False):
+
+    def extract(self):
         """
         Extract FSD from archives.
         """
-        if verbose:
+        if self.verbose:
             print("Start extracting FSD archives.")
 
-        for fileName, filePath in self.pathArchives.items():
+        if not os.path.exists(self.pathTemp):
+            os.mkdir(self.pathTemp)
+
+        for fileName in os.listdir(self.pathArchives):
             # create directory for extracted files
-            dirPath = "".join([config["localPath"]["data"], fileName])
+            dirName = fileName.split(".")[0]
+            dirPath = "".join([self.pathTemp, dirName])
             if not os.path.exists(dirPath):
                 os.mkdir(dirPath)
+
+            archPath = "".join([self.pathArchives, fileName])
             # extract files from archive
-            with zipfile.ZipFile(filePath, "r") as zipObj:
+            with zipfile.ZipFile(archPath, "r") as zipObj:
                 zipObj.extractall(
                     path=dirPath,
                     members=None
                 )
 
-                if verbose:
-                    print(f"Extracted {fileName}")
-        
-        if verbose:
-            print(f"Complete extracting all archives.\n")
+                if self.verbose:
+                    print(f"Extracted {dirName}")
 
-    def cleanup(self, verbose=False):
+        if self.verbose:
+            print("Complete extracting all archives.\n")
+
+    def parse(self):
+        """
+        Parse company name and report index to csv.
+        """
+        if self.verbose:
+            print("Start parsing SEC data.")
+
+        for dirName in os.listdir(self.pathTemp):
+            # parse company names and report IDs
+            filePath = "".join([
+                self.pathTemp,
+                dirName,
+                config["SECconvention"]["nameIndex"]
+            ])
+            df = pd.read_csv(
+                filePath,
+                sep=config["SECconvention"]["separator"],
+                index_col=config["SECconvention"]["indexColumn"],
+                low_memory=False
+            )
+            self.indexSEC = pd.concat([self.indexSEC, df])
+
+            # parse financial statements
+            filePath = "".join([
+                self.pathTemp,
+                dirName,
+                config["SECconvention"]["nameData"]
+            ])
+            df = pd.read_csv(
+                filePath,
+                sep=config["SECconvention"]["separator"],
+                index_col=config["SECconvention"]["indexColumn"],
+                low_memory=False
+            )
+            self.finDataSEC = pd.concat([self.finDataSEC, df])
+
+            if self.verbose:
+                print(f"Parsed {dirName}")
+
+        # save data to csv
+        self.indexSEC.to_csv(self.pathIndexSEC)
+        self.finDataSEC.to_csv(self.pathFinDataSEC)
+
+        if self.verbose:
+            print(f"Parsed index saved to {self.pathIndexSEC}")
+            print(f"Parsed data saved to {self.pathFinDataSEC}")
+            print("Complete parsing SEC data.")
+
+        return self.indexSEC, self.finDataSEC
+
+    def cleanup(self):
         """
         Remove all archives.
         """
-        if verbose:
-            print(f"Start cleanup.")
+        if self.verbose:
+            print("Start cleanup.")
 
-        for file in self.pathArchives.values():
-            os.remove(file)
-            if verbose:
-                print(f"Removed {file}")
-        
-        if verbose:
-            print(f"Complete cleanup.\n")
+        # remove archives
+        if os.path.exists(self.pathArchives):
+            for archive in os.listdir(self.pathArchives):
+                archivePath = "".join([self.pathArchives, archive])
+                os.remove(archivePath)
 
-        
+                if self.verbose:
+                    print(f"Removed {archivePath}")
 
+            os.rmdir(self.pathArchives)
+
+        # remove extracted artifacts
+        for dir in os.listdir(self.pathData):
+            dirPath = "".join([self.pathData, dir])
+            for obj in os.listdir(dirPath):
+                filePath = "/".join([dirPath, obj])
+                os.remove(filePath)
+
+            os.rmdir(dirPath)
+
+            if self.verbose:
+                print(f"Removed {dirPath}/")
+
+        if self.verbose:
+            print("Complete cleanup.\n")
 
 
 def main():
-    # scrap_sec_fillings(ticker)
-    # pathData = configs["pathInternal"]["data"] + "2020q2/num.txt"
-    # df = pd.read_csv(pathData, sep=separator, low_memory=False)
-    # print(df)
-    findata = Data()
-    findata.download(verbose=verbose)
-    findata.extract(verbose=verbose)
-    findata.cleanup(verbose=verbose)
+    # initialize DataSEC instance
+    findata = FinancialDataSEC()
 
+    # Download and extract data
+    findata.download()
+    findata.extract()
+
+    # Parse collected data
+    findata.parse()
+
+    # Cleanup redundant files
+    findata.cleanup()
     pass
+
 
 if __name__ == "__main__":
     main()
