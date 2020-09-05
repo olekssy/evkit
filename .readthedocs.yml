@@ -1,0 +1,14 @@
+# .readthedocs.yml
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+python:
+  version: 3
+  pip_install: true
+
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+  configuration: docs/conf.py
+
+# For more fields that can be specified here, see:
+# http://docs.readthedocs.io/en/latest/yaml-config.html

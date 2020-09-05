@@ -7,17 +7,10 @@ listed on stock exchanges in the U.S. Evkit uses curated data sources and cohesi
 which allows user to perform equity research, on par with professional quantitative researchers.
 
 
+Contents
+========
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    about
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
