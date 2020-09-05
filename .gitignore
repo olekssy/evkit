@@ -4,6 +4,11 @@
 __pycache__
 *.egg-info
 
+# Sphinx artifacts
+_build
+_static
+_temlates
+
 *.bin
 *.csv
 *.png
