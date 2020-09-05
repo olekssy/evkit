@@ -2,6 +2,7 @@
 
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/lialkaas/evkit.svg)](CHANGELOG.md)
 [![GitHub last commit](https://img.shields.io/github/last-commit/lialkaas/evkit.svg)](CHANGELOG.md)
+[![Documentation Status](https://readthedocs.org/projects/evkit/badge/?version=latest)](https://evkit.readthedocs.io/en/latest/?badge=latest)
 [![GitHub](https://img.shields.io/github/license/lialkaas/evkit.svg)](LICENSE.md)
 
 ML/AI powered solution for forecasting stock price from SEC Financial Statement Data Sets.

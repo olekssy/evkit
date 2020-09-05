@@ -1,5 +1,5 @@
 """
-Script for downloading company filings from
+Module for downloading company filings from
 SEC Financial Statement Data Sets.
 """
 
@@ -10,6 +10,25 @@ import zipfile
 
 import pandas as pd
 import requests
+
+
+# -------------------- Helper Functions --------------------
+def sec_url(period):
+    """ Create url link to SEC Financial Statement Data Set """
+    url = "".join([
+        "https://www.sec.gov/files/dera/data/financial-statement-data-sets/",
+        period,
+        ".zip"
+    ])
+
+    # handle weird path exception of SEC
+    if period == "2020q1":
+        url = "".join([
+            "https://www.sec.gov/files/node/add/data_distribution/",
+            period,
+            ".zip"
+        ])
+    return url
 
 
 # -------------------- Global Variables --------------------
@@ -23,14 +42,12 @@ CONFIG = {
         "finData": "data/sec_findata.csv",
     },
     "dataSource": {
-        "https://www.sec.gov/files/dera/data/financial-statement-data-sets/\
-2020q2.zip",
-        "https://www.sec.gov/files/node/add/data_distribution/\
-2020q1.zip",
-        "https://www.sec.gov/files/dera/data/financial-statement-data-sets/\
-2019q4.zip",
-        "https://www.sec.gov/files/dera/data/financial-statement-data-sets/\
-2019q3.zip"
+        sec_url("2020q2"),
+        sec_url("2020q1"),
+        sec_url("2019q4"),
+        sec_url("2019q3"),
+        sec_url("2019q2"),
+        sec_url("2019q1"),
     },
     "convention": {
         "separator": "\t",
