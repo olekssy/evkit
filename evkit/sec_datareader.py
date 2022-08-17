@@ -3,7 +3,6 @@ Module for downloading company filings from
 SEC Financial Statement Data Sets.
 """
 
-
 import os
 import shutil
 import zipfile
@@ -17,15 +16,13 @@ def sec_url(period):
     """ Create url link to SEC Financial Statement Data Set """
     url = "".join([
         "https://www.sec.gov/files/dera/data/financial-statement-data-sets/",
-        period,
-        ".zip"
+        period, ".zip"
     ])
 
     # handle weird path exception of SEC
     if period == "2020q1":
         url = "".join([
-            "https://www.sec.gov/files/node/add/data_distribution/",
-            period,
+            "https://www.sec.gov/files/node/add/data_distribution/", period,
             ".zip"
         ])
     return url
@@ -42,8 +39,8 @@ CONFIG = {
         "finData": "data/sec_findata.csv",
     },
     "dataSource": {
-        sec_url("2020q2"),
-        sec_url("2020q1"),
+        # sec_url("2020q2"),
+        # sec_url("2020q1"),
         sec_url("2019q4"),
         sec_url("2019q3"),
         sec_url("2019q2"),
@@ -63,6 +60,7 @@ class FinancialDataSEC:
     """
     Class for collecting Financial Statement Data Sets from SEC.
     """
+
     def __init__(self):
         self.verbose = CONFIG["verbose"]
         self.source = CONFIG["dataSource"]
@@ -126,10 +124,7 @@ class FinancialDataSEC:
             # extract files from archive
             archPath = "".join([self.archives, fileName])
             with zipfile.ZipFile(archPath, "r") as archive:
-                archive.extractall(
-                    path=dirPath,
-                    members=None
-                )
+                archive.extractall(path=dirPath, members=None)
 
                 if self.verbose:
                     print(f"Extracted {dirName}")
@@ -146,17 +141,12 @@ class FinancialDataSEC:
 
         for dirName in os.listdir(self.temp):
             # parse company names and report IDs
-            filePath = "".join([
-                self.temp,
-                dirName,
-                CONFIG["convention"]["fileIndex"]
-            ])
-            df = pd.read_csv(
-                filePath,
-                sep=CONFIG["convention"]["separator"],
-                index_col=CONFIG["convention"]["indexColumn"],
-                low_memory=False
-            )
+            filePath = "".join(
+                [self.temp, dirName, CONFIG["convention"]["fileIndex"]])
+            df = pd.read_csv(filePath,
+                             sep=CONFIG["convention"]["separator"],
+                             index_col=CONFIG["convention"]["indexColumn"],
+                             low_memory=False)
             self.index = pd.concat([self.index, df])
 
             if self.verbose:
@@ -181,17 +171,12 @@ class FinancialDataSEC:
 
         for dirName in os.listdir(self.temp):
             # parse financial statements
-            filePath = "".join([
-                self.temp,
-                dirName,
-                CONFIG["convention"]["fileData"]
-            ])
-            df = pd.read_csv(
-                filePath,
-                sep=CONFIG["convention"]["separator"],
-                index_col=CONFIG["convention"]["indexColumn"],
-                low_memory=False
-            )
+            filePath = "".join(
+                [self.temp, dirName, CONFIG["convention"]["fileData"]])
+            df = pd.read_csv(filePath,
+                             sep=CONFIG["convention"]["separator"],
+                             index_col=CONFIG["convention"]["indexColumn"],
+                             low_memory=False)
             self.finData = pd.concat([self.finData, df])
 
             if self.verbose:

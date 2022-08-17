@@ -1,0 +1,16 @@
+{
+    "global": {
+        "verbose": true
+    },
+    "path": {
+        "data": "./data",
+        "media": "./media",
+        "models": "./models",
+        "notebooks": "./notebooks",
+        "reports": "./reports"
+    },
+    "scrapper": {
+        "formType": "10-K",
+        "numberDownload": 10
+    }
+}
